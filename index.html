@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CeeTrading P&L Calendar</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>CeeTrading P&L Calendar</h1>
+
+<div class="controls">
+  <label for="month">Month:</label>
+  <select id="month">
+    <option value="0">January</option><option value="1">February</option>
+    <option value="2">March</option><option value="3">April</option>
+    <option value="4">May</option><option value="5">June</option>
+    <option value="6">July</option><option value="7">August</option>
+    <option value="8">September</option><option value="9">October</option>
+    <option value="10">November</option><option value="11">December</option>
+  </select>
+
+  <label for="year">Year:</label>
+  <input type="number" id="year" value="2025" min="2000" max="2100">
+
+  <button id="generateBtn">Generate</button>
+  <button id="clearBtn">Clear Month</button>
+</div>
+
+<table id="calendar">
+  <thead>
+    <tr>
+      <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+  <tfoot>
+    <tr><td colspan="7">Total: $<span id="total">0.00</span></td></tr>
+  </tfoot>
+</table>
+
+<script src="js/calendar.js"></script>
+</body>
+</html>
