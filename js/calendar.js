@@ -15,6 +15,7 @@ function saveToStorage(day, value, year, month) {
   data[day] = value;
   localStorage.setItem(key, JSON.stringify(data));
   updateTotal();
+  updateInputColors();
 }
 
 function loadFromStorage(year, month) {
@@ -53,7 +54,9 @@ function generateCalendar() {
     }
     const cell = document.createElement('td');
     const value = storedData[day] || 0;
-    cell.innerHTML = `<div>${day}</div><input type="number" step="0.01" value="${value}" onchange="saveToStorage(${day}, parseFloat(this.value)||0, ${year}, ${month})">`;
+    cell.innerHTML = `<div>${day}</div>
+      <input type="number" step="0.01" value="${value}" 
+        onchange="saveToStorage(${day}, parseFloat(this.value)||0, ${year}, ${month})">`;
     row.appendChild(cell);
   }
 
@@ -63,6 +66,7 @@ function generateCalendar() {
 
   calendarBody.appendChild(row);
   updateTotal();
+  updateInputColors();
 }
 
 function updateTotal() {
@@ -70,6 +74,22 @@ function updateTotal() {
   let total = 0;
   inputs.forEach(input => total += parseFloat(input.value) || 0);
   totalSpan.textContent = total.toFixed(2);
+}
+
+function updateInputColors() {
+  const inputs = document.querySelectorAll('#calendar tbody input');
+  inputs.forEach(input => {
+    if(parseFloat(input.value) > 0) {
+      input.style.backgroundColor = '#003300'; // dark green
+      input.style.color = '#00ff00'; // bright green text
+    } else if(parseFloat(input.value) < 0) {
+      input.style.backgroundColor = '#330000'; // dark red
+      input.style.color = '#ff0000'; // bright red text
+    } else {
+      input.style.backgroundColor = '#000000'; // black for zero
+      input.style.color = '#00ffff'; // neon cyan text
+    }
+  });
 }
 
 // Event listeners
