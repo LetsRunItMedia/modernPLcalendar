@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   background: #1a1a1a;
-  color: #00ffff;
+  color: #fdffff;
   padding: 20px;
 }
 h1 { text-align: center; }
@@ -17,7 +17,7 @@ table {
   table-layout: fixed;
 }
 th, td {
-  border: 1px solid #00ffff;
+  border: 1px solid #00000000;
   padding: 10px;
   text-align: center;
   vertical-align: top;
@@ -26,10 +26,11 @@ input {
   width: 70px;
   text-align: right;
   background: #000;
-  color: #00ffff;
+  color: #5a5c64e3;
   border: 1px solid #00ffff;
 }
 tfoot td {
   font-weight: bold;
   background: #004d4d;
 }
+
