@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CeeTrading P&L Calendar</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     * {
@@ -26,7 +25,7 @@
       position: relative;
     }
 
-    /* Dynamic Liquid Background */
+    /* Dynamic “Liquid Glass” background */
     body::before {
       content: "";
       position: absolute;
@@ -142,39 +141,15 @@
       font-size: 1.2rem;
       padding: 12px;
     }
-
-    #chartContainer {
-      width: 90%;
-      max-width: 900px;
-      margin: 30px 0;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 15px;
-      backdrop-filter: blur(25px);
-      box-shadow: 0 0 20px #00ffff30;
-    }
-
-    canvas {
-      width: 100%;
-      height: 300px;
-    }
-
   </style>
 </head>
+
 <body>
   <h1>CeeTrading P&L Calendar</h1>
 
   <div class="controls">
-    <select id="month">
-      <script>
-        const months = [
-          "January","February","March","April","May","June",
-          "July","August","September","October","November","December"
-        ];
-        document.write(months.map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()?'selected':''}>${m}</option>`).join(''));
-      </script>
-    </select>
-    <input type="number" id="year" value="${new Date().getFullYear()}" style="width:90px;" />
+    <select id="month"></select>
+    <input type="number" id="year" style="width:90px;" />
     <button id="generateBtn">Generate</button>
     <button id="clearBtn">Clear</button>
   </div>
@@ -194,10 +169,23 @@
     </tfoot>
   </table>
 
-  <div id="chartContainer">
-    <canvas id="pnlChart"></canvas>
-  </div>
-
   <script src="calendar.js"></script>
+  <script>
+    // Populate month and year automatically
+    const monthSelect = document.getElementById("month");
+    const yearInput = document.getElementById("year");
+    const months = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+    months.forEach((m,i)=>{
+      const opt=document.createElement("option");
+      opt.value=i;
+      opt.textContent=m;
+      if(i===new Date().getMonth()) opt.selected=true;
+      monthSelect.appendChild(opt);
+    });
+    yearInput.value=new Date().getFullYear();
+  </script>
 </body>
 </html>
