@@ -1,3 +1,5 @@
+let pnlChart; // global chart instance
+
 // === DOM ELEMENTS ===
 const monthSelect = document.getElementById('month');
 const yearInput = document.getElementById('year');
@@ -19,6 +21,7 @@ function saveToStorage(day, value, year, month) {
   localStorage.setItem(key, JSON.stringify(data));
   updateTotal();
   updateInputColors();
+  updateChart();
 }
 
 function loadFromStorage(year, month) {
@@ -88,6 +91,7 @@ function generateCalendar() {
   calendarBody.appendChild(row);
   updateTotal();
   updateInputColors();
+  updateChart();
 }
 
 // === TOTAL CALCULATION ===
@@ -101,17 +105,14 @@ function updateTotal() {
   updateTotalColor();
 }
 
-// === COLOR UPDATES (GREEN/RED) ===
+// === COLOR UPDATES ===
 function updateInputColors() {
   const inputs = document.querySelectorAll('#calendar tbody input');
   inputs.forEach(input => {
     input.classList.remove('profit', 'loss');
     const value = parseFloat(input.value);
-    if (value > 0) {
-      input.classList.add('profit');
-    } else if (value < 0) {
-      input.classList.add('loss');
-    }
+    if (value > 0) input.classList.add('profit');
+    else if (value < 0) input.classList.add('loss');
   });
 }
 
@@ -131,9 +132,46 @@ function updateTotalColor() {
   }
 }
 
-// === INITIALIZATION ===
+// === CHART CREATION ===
+function updateChart() {
+  const month = parseInt(monthSelect.value);
+  const year = parseInt(yearInput.value);
+  const storedData = loadFromStorage(year, month);
+
+  const days = Object.keys(storedData).map(Number).sort((a,b)=>a-b);
+  const values = days.map(d => storedData[d]);
+
+  const ctx = document.getElementById('pnlChart').getContext('2d');
+
+  if (pnlChart) pnlChart.destroy();
+
+  pnlChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        label: `P&L for ${monthSelect.options[month].text} ${year}`,
+        data: values,
+        fill: true,
+        borderColor: '#00ffff',
+        backgroundColor: 'rgba(0,255,255,0.1)',
+        tension: 0.3,
+        pointBackgroundColor: values.map(v => v >= 0 ? '#00ff66' : '#ff3333'),
+      }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#00ffff' } } },
+      scales: {
+        x: { ticks: { color: '#00ffff' }, grid: { color: 'rgba(0,255,255,0.1)' } },
+        y: { ticks: { color: '#00ffff' }, grid: { color: 'rgba(0,255,255,0.1)' } }
+      }
+    }
+  });
+}
+
+// === EVENT LISTENERS ===
 generateBtn.addEventListener('click', generateCalendar);
 clearBtn.addEventListener('click', clearCalendar);
 
-// Load current month automatically
+// === INITIALIZATION ===
 generateCalendar();
