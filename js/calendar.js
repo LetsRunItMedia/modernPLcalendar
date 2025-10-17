@@ -1,3 +1,4 @@
+// === DOM ELEMENTS ===
 const monthSelect = document.getElementById('month');
 const yearInput = document.getElementById('year');
 const calendarBody = document.querySelector('#calendar tbody');
@@ -5,10 +6,12 @@ const totalSpan = document.getElementById('total');
 const generateBtn = document.getElementById('generateBtn');
 const clearBtn = document.getElementById('clearBtn');
 
+// === STORAGE KEY HELPERS ===
 function getStorageKey(year, month) {
   return `pnl_${year}_${month}`;
 }
 
+// === SAVE AND LOAD FUNCTIONS ===
 function saveToStorage(day, value, year, month) {
   const key = getStorageKey(year, month);
   const data = JSON.parse(localStorage.getItem(key) || '{}');
@@ -23,15 +26,17 @@ function loadFromStorage(year, month) {
   return JSON.parse(localStorage.getItem(key) || '{}');
 }
 
+// === CLEAR MONTHLY DATA ===
 function clearCalendar() {
   const month = parseInt(monthSelect.value);
   const year = parseInt(yearInput.value);
-  if(confirm("Clear all P&L entries for this month?")) {
+  if (confirm(`Clear all P&L entries for ${month + 1}/${year}?`)) {
     localStorage.removeItem(getStorageKey(year, month));
     generateCalendar();
   }
 }
 
+// === MAIN CALENDAR GENERATION ===
 function generateCalendar() {
   const month = parseInt(monthSelect.value);
   const year = parseInt(yearInput.value);
@@ -43,24 +48,40 @@ function generateCalendar() {
 
   let row = document.createElement('tr');
 
-  for(let i=0; i<firstDay; i++) {
+  // Blank cells before 1st of month
+  for (let i = 0; i < firstDay; i++) {
     row.appendChild(document.createElement('td'));
   }
 
-  for(let day=1; day<=daysInMonth; day++) {
-    if(row.children.length === 7){
+  // Create daily cells
+  for (let day = 1; day <= daysInMonth; day++) {
+    if (row.children.length === 7) {
       calendarBody.appendChild(row);
       row = document.createElement('tr');
     }
+
     const cell = document.createElement('td');
-    const value = storedData[day] || 0;
-    cell.innerHTML = `<div>${day}</div>
-      <input type="number" step="0.01" value="${value}" 
-        onchange="saveToStorage(${day}, parseFloat(this.value)||0, ${year}, ${month})">`;
+    const value = storedData[day] || '';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = '0.01';
+    input.value = value;
+    input.addEventListener('input', () => {
+      const val = parseFloat(input.value) || 0;
+      saveToStorage(day, val, year, month);
+    });
+
+    const label = document.createElement('div');
+    label.textContent = day;
+
+    cell.appendChild(label);
+    cell.appendChild(input);
     row.appendChild(cell);
   }
 
-  while(row.children.length < 7) {
+  // Fill trailing empty cells
+  while (row.children.length < 7) {
     row.appendChild(document.createElement('td'));
   }
 
@@ -69,32 +90,50 @@ function generateCalendar() {
   updateInputColors();
 }
 
+// === TOTAL CALCULATION ===
 function updateTotal() {
   const inputs = document.querySelectorAll('#calendar tbody input');
   let total = 0;
-  inputs.forEach(input => total += parseFloat(input.value) || 0);
+  inputs.forEach(input => {
+    total += parseFloat(input.value) || 0;
+  });
   totalSpan.textContent = total.toFixed(2);
+  updateTotalColor();
 }
 
+// === COLOR UPDATES (GREEN/RED) ===
 function updateInputColors() {
   const inputs = document.querySelectorAll('#calendar tbody input');
   inputs.forEach(input => {
-    if(parseFloat(input.value) > 0) {
-      input.style.backgroundColor = '#003300'; // dark green
-      input.style.color = '#00ff00'; // bright green text
-    } else if(parseFloat(input.value) < 0) {
-      input.style.backgroundColor = '#330000'; // dark red
-      input.style.color = '#ff0000'; // bright red text
-    } else {
-      input.style.backgroundColor = '#000000'; // black for zero
-      input.style.color = '#00ffff'; // neon cyan text
+    input.classList.remove('profit', 'loss');
+    const value = parseFloat(input.value);
+    if (value > 0) {
+      input.classList.add('profit');
+    } else if (value < 0) {
+      input.classList.add('loss');
     }
   });
 }
 
-// Event listeners
+// === TOTAL COLOR ===
+function updateTotalColor() {
+  const total = parseFloat(totalSpan.textContent);
+  const totalCell = document.querySelector('#calendar tfoot td');
+  if (total > 0) {
+    totalCell.style.color = '#00ff66';
+    totalCell.style.textShadow = '0 0 10px #00ff6680';
+  } else if (total < 0) {
+    totalCell.style.color = '#ff3333';
+    totalCell.style.textShadow = '0 0 10px #ff333380';
+  } else {
+    totalCell.style.color = '#00ffff';
+    totalCell.style.textShadow = 'none';
+  }
+}
+
+// === INITIALIZATION ===
 generateBtn.addEventListener('click', generateCalendar);
 clearBtn.addEventListener('click', clearCalendar);
 
-// Load current month by default
+// Load current month automatically
 generateCalendar();
