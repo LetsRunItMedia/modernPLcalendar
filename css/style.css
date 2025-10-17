@@ -1,37 +1,137 @@
+/* === Base Styling === */
 body {
-  font-family: Arial, sans-serif;
-  background: #1a1a1a;
-  color: #fdffff;
-  padding: 20px;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0a0a0f, #001a1a);
+  color: #e0ffff;
+  min-height: 100vh;
+  margin: 0;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-h1 { text-align: center; }
-.controls { text-align: center; margin-bottom: 15px; }
+
+/* === Title === */
+h1 {
+  font-size: 2.5em;
+  color: #00ffff;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #00ffff80;
+  letter-spacing: 1px;
+}
+
+/* === Controls Panel (Frosted Glass Effect) === */
+.controls {
+  backdrop-filter: blur(15px) saturate(150%);
+  -webkit-backdrop-filter: blur(15px) saturate(150%);
+  background-color: rgba(0, 30, 30, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 15px 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
 select, input[type="number"], button {
-  padding: 5px 10px;
-  margin: 5px;
+  padding: 8px 12px;
+  border-radius: 12px;
   font-size: 16px;
+  border: 1px solid rgba(0,255,255,0.2);
+  background: rgba(0,20,20,0.6);
+  color: #00ffff;
+  outline: none;
+  transition: all 0.25s ease;
 }
+
+button {
+  cursor: pointer;
+  background: linear-gradient(145deg, #00ffff40, #00cccc20);
+  box-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+button:hover {
+  background: linear-gradient(145deg, #00ffff80, #00cccc40);
+  transform: translateY(-1px);
+}
+
+/* === Calendar === */
 table {
-  width: 100%;
+  width: 95%;
+  max-width: 900px;
   border-collapse: collapse;
   table-layout: fixed;
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(0, 15, 15, 0.5);
+  box-shadow: 0 0 20px rgba(0,255,255,0.2);
 }
+
 th, td {
-  border: 1px solid #00000000;
-  padding: 10px;
+  border: 1px solid rgba(0,255,255,0.1);
   text-align: center;
   vertical-align: top;
+  padding: 10px;
 }
-input {
-  width: 70px;
+
+th {
+  background: rgba(0, 255, 255, 0.1);
+  font-weight: 600;
+  color: #00ffff;
+  letter-spacing: 0.5px;
+}
+
+td div {
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  color: #66ffff;
+}
+
+td input {
+  width: 80%;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,255,255,0.2);
   text-align: right;
-  background: #000;
-  color: #5a5c64e3;
-  border: 1px solid #00ffff00;
+  background: rgba(0,0,0,0.6);
+  color: #00ffff;
+  font-size: 0.95em;
+  transition: all 0.25s ease;
 }
+
+td input:focus {
+  outline: none;
+  border-color: #00ffff;
+  box-shadow: 0 0 10px #00ffff60;
+}
+
+/* === Total Bar (Dynamic Color) === */
 tfoot td {
   font-weight: bold;
-  background: #004d4d;
+  font-size: 1.3em;
+  padding: 15px;
+  text-align: center;
+  background: rgba(0,30,30,0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,255,255,0.2);
+  color: #00ffff;
+  transition: color 0.3s ease;
 }
 
+/* === Positive / Negative Input Colors === */
+input.profit {
+  background: rgba(0, 60, 0, 0.6);
+  color: #00ff66;
+  box-shadow: inset 0 0 8px #00ff3360;
+}
 
+input.loss {
+  background: rgba(60, 0, 0, 0.6);
+  color: #ff3333;
+  box-shadow: inset 0 0 8px #ff333360;
+}
