@@ -1,45 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CeeTrading P&L Calendar</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CeeTrading P&L Calendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: radial-gradient(circle at 30% 30%, #0ff4, #003033);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      backdrop-filter: blur(40px);
+      position: relative;
+    }
+
+    /* Dynamic Liquid Background */
+    body::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background: linear-gradient(125deg, #00eaffaa, #0055ffaa, #00ffccaa, #004466aa);
+      background-size: 400% 400%;
+      animation: moveBg 15s ease infinite;
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    @keyframes moveBg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2rem;
+      background: linear-gradient(to right, #00eaff, #00ffaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 12px #00ffff40;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin: 20px;
+      align-items: center;
+    }
+
+    select, input[type="number"], button {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 1rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 10px #00ffff40;
+      transition: all 0.3s ease;
+    }
+
+    select:hover, button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00ffff60;
+    }
+
+    table {
+      width: 90%;
+      max-width: 900px;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 20px #00ffff30;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    td {
+      width: 14%;
+      height: 100px;
+      position: relative;
+    }
+
+    td div {
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      opacity: 0.8;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 10px;
+      border: none;
+      padding: 5px;
+      text-align: center;
+      font-size: 1rem;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 8px #00ffff60;
+    }
+
+    input.profit {
+      background: rgba(0, 255, 100, 0.2);
+      box-shadow: 0 0 12px #00ff8060;
+    }
+
+    input.loss {
+      background: rgba(255, 0, 80, 0.2);
+      box-shadow: 0 0 12px #ff005080;
+    }
+
+    tfoot td {
+      font-weight: 600;
+      font-size: 1.2rem;
+      padding: 12px;
+    }
+
+    #chartContainer {
+      width: 90%;
+      max-width: 900px;
+      margin: 30px 0;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 15px;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 20px #00ffff30;
+    }
+
+    canvas {
+      width: 100%;
+      height: 300px;
+    }
+
+  </style>
 </head>
 <body>
+  <h1>CeeTrading P&L Calendar</h1>
 
-<h1>CeeTrading P&L Calendar</h1>
+  <div class="controls">
+    <select id="month">
+      <script>
+        const months = [
+          "January","February","March","April","May","June",
+          "July","August","September","October","November","December"
+        ];
+        document.write(months.map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()?'selected':''}>${m}</option>`).join(''));
+      </script>
+    </select>
+    <input type="number" id="year" value="${new Date().getFullYear()}" style="width:90px;" />
+    <button id="generateBtn">Generate</button>
+    <button id="clearBtn">Clear</button>
+  </div>
 
-<div class="controls">
-  <label for="month">Month:</label>
-  <select id="month">
-    <option value="0">January</option><option value="1">February</option>
-    <option value="2">March</option><option value="3">April</option>
-    <option value="4">May</option><option value="5">June</option>
-    <option value="6">July</option><option value="7">August</option>
-    <option value="8">September</option><option value="9">October</option>
-    <option value="10">November</option><option value="11">December</option>
-  </select>
+  <table id="calendar">
+    <thead>
+      <tr>
+        <th>Sun</th><th>Mon</th><th>Tue</th>
+        <th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="7">Total P&L: <span id="total">0.00</span></td>
+      </tr>
+    </tfoot>
+  </table>
 
-  <label for="year">Year:</label>
-  <input type="number" id="year" value="2025" min="2000" max="2100">
+  <div id="chartContainer">
+    <canvas id="pnlChart"></canvas>
+  </div>
 
-  <button id="generateBtn">Generate</button>
-  <button id="clearBtn">Clear Month</button>
-</div>
-
-<table id="calendar">
-  <thead>
-    <tr>
-      <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-  <tfoot>
-    <tr><td colspan="7">Total: $<span id="total">0.00</span></td></tr>
-  </tfoot>
-</table>
-
-<script src="js/calendar.js"></script>
+  <script src="calendar.js"></script>
 </body>
 </html>
