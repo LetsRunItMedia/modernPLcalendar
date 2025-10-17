@@ -1,5 +1,3 @@
-let pnlChart; // global chart instance
-
 // === DOM ELEMENTS ===
 const monthSelect = document.getElementById('month');
 const yearInput = document.getElementById('year');
@@ -8,12 +6,11 @@ const totalSpan = document.getElementById('total');
 const generateBtn = document.getElementById('generateBtn');
 const clearBtn = document.getElementById('clearBtn');
 
-// === STORAGE KEY HELPERS ===
+// === STORAGE HELPERS ===
 function getStorageKey(year, month) {
   return `pnl_${year}_${month}`;
 }
 
-// === SAVE AND LOAD FUNCTIONS ===
 function saveToStorage(day, value, year, month) {
   const key = getStorageKey(year, month);
   const data = JSON.parse(localStorage.getItem(key) || '{}');
@@ -21,7 +18,6 @@ function saveToStorage(day, value, year, month) {
   localStorage.setItem(key, JSON.stringify(data));
   updateTotal();
   updateInputColors();
-  updateChart();
 }
 
 function loadFromStorage(year, month) {
@@ -29,17 +25,17 @@ function loadFromStorage(year, month) {
   return JSON.parse(localStorage.getItem(key) || '{}');
 }
 
-// === CLEAR MONTHLY DATA ===
+// === CLEAR CALENDAR ===
 function clearCalendar() {
   const month = parseInt(monthSelect.value);
   const year = parseInt(yearInput.value);
-  if (confirm(`Clear all P&L entries for ${month + 1}/${year}?`)) {
+  if (confirm(`Clear all P&L entries for ${months[month]} ${year}?`)) {
     localStorage.removeItem(getStorageKey(year, month));
     generateCalendar();
   }
 }
 
-// === MAIN CALENDAR GENERATION ===
+// === GENERATE CALENDAR ===
 function generateCalendar() {
   const month = parseInt(monthSelect.value);
   const year = parseInt(yearInput.value);
@@ -51,12 +47,12 @@ function generateCalendar() {
 
   let row = document.createElement('tr');
 
-  // Blank cells before 1st of month
+  // Empty cells before start
   for (let i = 0; i < firstDay; i++) {
     row.appendChild(document.createElement('td'));
   }
 
-  // Create daily cells
+  // Daily boxes
   for (let day = 1; day <= daysInMonth; day++) {
     if (row.children.length === 7) {
       calendarBody.appendChild(row);
@@ -64,12 +60,11 @@ function generateCalendar() {
     }
 
     const cell = document.createElement('td');
-    const value = storedData[day] || '';
-
     const input = document.createElement('input');
     input.type = 'number';
     input.step = '0.01';
-    input.value = value;
+    input.value = storedData[day] || '';
+
     input.addEventListener('input', () => {
       const val = parseFloat(input.value) || 0;
       saveToStorage(day, val, year, month);
@@ -83,7 +78,7 @@ function generateCalendar() {
     row.appendChild(cell);
   }
 
-  // Fill trailing empty cells
+  // Fill trailing cells
   while (row.children.length < 7) {
     row.appendChild(document.createElement('td'));
   }
@@ -91,10 +86,9 @@ function generateCalendar() {
   calendarBody.appendChild(row);
   updateTotal();
   updateInputColors();
-  updateChart();
 }
 
-// === TOTAL CALCULATION ===
+// === TOTALS ===
 function updateTotal() {
   const inputs = document.querySelectorAll('#calendar tbody input');
   let total = 0;
@@ -105,7 +99,7 @@ function updateTotal() {
   updateTotalColor();
 }
 
-// === COLOR UPDATES ===
+// === COLOR LOGIC ===
 function updateInputColors() {
   const inputs = document.querySelectorAll('#calendar tbody input');
   inputs.forEach(input => {
@@ -116,7 +110,6 @@ function updateInputColors() {
   });
 }
 
-// === TOTAL COLOR ===
 function updateTotalColor() {
   const total = parseFloat(totalSpan.textContent);
   const totalCell = document.querySelector('#calendar tfoot td');
@@ -132,46 +125,9 @@ function updateTotalColor() {
   }
 }
 
-// === CHART CREATION ===
-function updateChart() {
-  const month = parseInt(monthSelect.value);
-  const year = parseInt(yearInput.value);
-  const storedData = loadFromStorage(year, month);
-
-  const days = Object.keys(storedData).map(Number).sort((a,b)=>a-b);
-  const values = days.map(d => storedData[d]);
-
-  const ctx = document.getElementById('pnlChart').getContext('2d');
-
-  if (pnlChart) pnlChart.destroy();
-
-  pnlChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: days,
-      datasets: [{
-        label: `P&L for ${monthSelect.options[month].text} ${year}`,
-        data: values,
-        fill: true,
-        borderColor: '#00ffff',
-        backgroundColor: 'rgba(0,255,255,0.1)',
-        tension: 0.3,
-        pointBackgroundColor: values.map(v => v >= 0 ? '#00ff66' : '#ff3333'),
-      }]
-    },
-    options: {
-      plugins: { legend: { labels: { color: '#00ffff' } } },
-      scales: {
-        x: { ticks: { color: '#00ffff' }, grid: { color: 'rgba(0,255,255,0.1)' } },
-        y: { ticks: { color: '#00ffff' }, grid: { color: 'rgba(0,255,255,0.1)' } }
-      }
-    }
-  });
-}
-
 // === EVENT LISTENERS ===
 generateBtn.addEventListener('click', generateCalendar);
 clearBtn.addEventListener('click', clearCalendar);
 
-// === INITIALIZATION ===
+// Load current month on start
 generateCalendar();
